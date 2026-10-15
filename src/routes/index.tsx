@@ -258,7 +258,18 @@ function Index() {
                     </span>
                   </div>
                   <div className="nx-shot-body">
-                    <strong>{p.name}</strong>
+                    {p.screenshot ? (
+                      <img
+                        src={p.screenshot}
+                        alt={`Screenshot of ${p.name}`}
+                        loading="lazy"
+                        decoding="async"
+                        width={1905}
+                        height={860}
+                      />
+                    ) : (
+                      <strong>{p.name}</strong>
+                    )}
                   </div>
                 </div>
                 <div>

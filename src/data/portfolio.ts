@@ -1,5 +1,8 @@
 // All site content lives here. Edit this file to update the portfolio.
 import portraitImg from "@/assets/portrait.jpg";
+import peyloraShot from "@/assets/peylora.png";
+import codealphaSocialShot from "@/assets/codealpha-socialmedia.png";
+import codealphaEcommerceShot from "@/assets/codealpha-ecommerce.png";
 
 export const profile = {
   name: "Jeremia Obed",
@@ -66,6 +69,8 @@ export type Project = {
   live?: string;
   repo: string;
   featured?: boolean;
+  /** Optional project screenshot (imported from src/assets). */
+  screenshot?: string;
 };
 
 /*
@@ -97,6 +102,7 @@ export const projects: Project[] = [
     live: "https://peylora-system.vercel.app",
     repo: "https://github.com/jeremi563/peylora-system",
     featured: true,
+    screenshot: peyloraShot,
   },
   {
     slug: "codealpha-social",
@@ -107,8 +113,10 @@ export const projects: Project[] = [
     detail:
       "Express REST API and vanilla JavaScript frontend over MongoDB and GridFS, featuring session authentication, real-time feed updates, notifications, follower networks, and moderation tools.",
     stack: ["Node.js", "Express", "MongoDB", "JavaScript"],
+    live: "https://codealpha-socialmediaplatform-5skd.onrender.com",
     repo: "https://github.com/jeremi563/CodeAlpha_SocialMediaPlatform",
     featured: true,
+    screenshot: codealphaSocialShot,
   },
   {
     slug: "codealpha",
@@ -121,6 +129,7 @@ export const projects: Project[] = [
     live: "https://codealpha-ecommerce-id4j.onrender.com/",
     repo: "https://github.com/jeremi563/CodeAlpha_Ecommerce",
     featured: true,
+    screenshot: codealphaEcommerceShot,
   },
   {
     slug: "cypheron",
