@@ -12,7 +12,8 @@ export const profile = {
   role: "Software Engineer & Full-Stack Developer",
   email: "\n",
   github: "https://github.com/jeremi563",
-  linkedin: "https://www.linkedin.com/in/dev-obed?utm_source=share_via&utm_content=profile&utm_medium=member_android",
+  linkedin:
+    "https://www.linkedin.com/in/dev-obed?utm_source=share_via&utm_content=profile&utm_medium=member_android",
   whatsapp: "https://wa.me/254731242169?text=Hello%20Jeremia",
   // Place the real PDF at public/Jeremia-Obed-CV.pdf, then set this to true.
   cvAvailable: true,

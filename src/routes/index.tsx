@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   type Project,
   profile,
@@ -13,11 +14,11 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Jeremia Obed — Nexora · Software Engineer" },
+      { title: "Jeremia Obed · Software Engineer" },
       {
         name: "description",
         content:
-          "Jeremia Obed (Nexora) — software engineer building web applications, backend systems and API-driven products.",
+          "Jeremia Obed — software engineer building web applications, backend systems and API-driven products.",
       },
       { property: "og:title", content: "Jeremia Obed — Nexora · Software Engineer" },
       {
@@ -144,6 +145,106 @@ function SectionHead({ label, title, text }: { label: string; title: string; tex
         <h2>{title}</h2>
         {text && <p>{text}</p>}
       </div>
+    </div>
+  );
+}
+
+function GitHubStats({ username }: { username: string }) {
+  const userQuery = useQuery({
+    queryKey: ["github-user", username],
+    queryFn: async () => {
+      const res = await fetch(`https://api.github.com/users/${username}`);
+      if (!res.ok) throw new Error(`GitHub user request failed: ${res.status}`);
+      return res.json() as Promise<{
+        public_repos: number;
+        followers: number;
+        following: number;
+      }>;
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    retry: 1,
+    enabled: !!username,
+  });
+
+  const reposQuery = useQuery({
+    queryKey: ["github-repos", username],
+    queryFn: async () => {
+      const res = await fetch(
+        `https://api.github.com/users/${username}/repos?per_page=100&sort=updated`,
+      );
+      if (!res.ok) throw new Error(`GitHub repos request failed: ${res.status}`);
+      return res.json() as Promise<
+        Array<{
+          stargazers_count: number;
+          forks_count: number;
+          name: string;
+          html_url: string;
+          description: string | null;
+          language: string | null;
+        }>
+      >;
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    retry: 1,
+    enabled: !!username,
+  });
+
+  const stats = useMemo(() => {
+    if (userQuery.data && reposQuery.data) {
+      const stars = reposQuery.data.reduce((sum, r) => sum + (r.stargazers_count ?? 0), 0);
+      const forks = reposQuery.data.reduce((sum, r) => sum + (r.forks_count ?? 0), 0);
+      const reposCount = userQuery.data.public_repos ?? reposQuery.data.length;
+      return { stars, forks, reposCount };
+    }
+    return null;
+  }, [userQuery.data, reposQuery.data]);
+
+  const isLoading = userQuery.isLoading || reposQuery.isLoading;
+  const isError = userQuery.isError || reposQuery.isError;
+
+  if (!username) return null;
+
+  return (
+    <div className="nx-github-stats nx-reveal">
+      {isLoading && !stats ? (
+        <div className="nx-github-stats-strip nx-skeleton" aria-label="Loading GitHub stats">
+          <span className="nx-stat" />
+          <span className="nx-stat" />
+          <span className="nx-stat" />
+        </div>
+      ) : stats && !isError ? (
+        <ul className="nx-github-stats-strip">
+          <li className="nx-stat">
+            <span className="nx-stat-value">{stats.reposCount.toLocaleString()}</span>
+            <span className="nx-stat-label">Public Repos</span>
+          </li>
+          <li className="nx-stat">
+            <span className="nx-stat-value">{stats.stars.toLocaleString()}</span>
+            <span className="nx-stat-label">Stars</span>
+          </li>
+          <li className="nx-stat">
+            <span className="nx-stat-value">{stats.forks.toLocaleString()}</span>
+            <span className="nx-stat-label">Forks</span>
+          </li>
+        </ul>
+      ) : (
+        <ul className="nx-github-stats-strip" aria-label="GitHub stats unavailable">
+          <li className="nx-stat">
+            <span className="nx-stat-value">—</span>
+            <span className="nx-stat-label">Public Repos</span>
+          </li>
+          <li className="nx-stat">
+            <span className="nx-stat-value">—</span>
+            <span className="nx-stat-label">Stars</span>
+          </li>
+          <li className="nx-stat">
+            <span className="nx-stat-value">—</span>
+            <span className="nx-stat-label">Forks</span>
+          </li>
+        </ul>
+      )}
     </div>
   );
 }
@@ -378,6 +479,7 @@ function Index() {
               title="More on GitHub"
               text="Smaller repositories, experiments and training material."
             />
+            <GitHubStats username={profile.github.split("/").pop() || "jeremi563"} />
             <div className="nx-repos nx-reveal">
               {repos.map((r) => (
                 <a
